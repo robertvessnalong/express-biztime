@@ -49,10 +49,17 @@ router.put('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
     const { amt } = req.body;
+    let paid;
+    if (amt) {
+      paid = new Date().toISOString().split('T')[0];
+    } else {
+      paid = null;
+    }
     const results = await db.query(
-      `UPDATE invoices SET amt=$1 WHERE id=$2 RETURNING *`,
-      [amt, id]
+      `UPDATE invoices SET amt=$1, paid_date=$2 WHERE id=$3 RETURNING *`,
+      [amt, paid, id]
     );
+    console.log(paid);
     if (results.rows.length === 0) {
       new ExpressError(`Cant update invoice with id of ${id}`, 404);
     }
